@@ -1,0 +1,139 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+ var here0='How to';
+ var here1='misc';
+ var here2='specialized plots';
+</script>
+<script src="../sett.js"></script>
+
+<div style='width:500px'>
+
+
+<div class=subtitles2>&there4; specialized plots and tools</div><br>
+
+<div class=subtitles>Ellipses</div>
+Data visualization using ellipses is very used for instance to plot
+the harmonics of tidal currents, to draw dispersions plots, etc.
+Ellipses are drawn with two sinusoids with same frequency  and the four
+variables amplitudes and phases. These four variables can be converted
+in major and minor axis, inclination and initial phase. Here is shown
+a function to plots ellipses with the second set of variables (semi-major,
+semi-minor, inclination and phase). These variables are common outputs
+from tidal analysis tools (like
+<a href='http://www.pac.dfo-mpo.gc.ca/science/oceans/tidal-marees/index-eng.html' target='_blank'>
+Foreman's Progiciel d'analyse et de pr&eacute;vision des mar&eacute;es</a>
+(<a href='http://www.pac.dfo-mpo.gc.ca/science/oceans/tidal-marees/index-fra.html' target='_blank'>IOS
+Tidal Package</a>), <a href='http://www.eos.ubc.ca/~rich/#T_Tide' target='_blank'>t_tide</a>
+and <a href='http://sourceforge.net/apps/mediawiki/tappy' target='_blank'>tappy</a>).
+
+<p>
+<div  align=right>[<a href='code/ellipes.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/ellipses.html"></iframe>
+<p>
+
+
+<img src='figs/ellipses.png' border=0>
+<br>
+
+<div style='width: 500px; height: 50px; line-height: 50px' align=center>&sect;</div>
+
+<div class=subtitles>Wind roses</div>
+Wind roses are frequency, intensity, direction plots,ie, they represent
+cumulative histograms drawn on a compass rose using direction as abscissas.
+They are used to illustrate the variability of a 2d vector
+(without time information), like wind, of course. Module <i>pl_plots</i> includes
+the wind_rose tool which is a clone of the matlab version
+(<a href='http://www.mathworks.com/matlabcentral/fileexchange/17748-wind-rose' target='_blank'><i>wind_rose.m</i>, matlab file exchange</a>).
+<p>
+
+
+<div  align=right>[<a href='code/ex_wind_rose_1.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/ex_wind_rose_1.html"></iframe>
+<p>
+
+<div align=center>
+  <img src='figs/ex_wind_rose_1_0.png' border=0><br>
+  <img src='figs/ex_wind_rose_1_1.png' border=0>
+</div>
+
+
+<div style='width: 500px; height: 50px; line-height: 50px; font-size: 9px' align=center>&#8258;</div>
+
+Now something more realistic... Let's get wind data from an opendap server,
+and plot its direction and intensity. Next example uses ROMS forcing winds
+(NARR) from the <a href='http://barataria.tamu.edu:8080/thredds/catalog.html' target='_blank'>pong-opendap server</a>,
+near the Mississippi mouth betwen August and December 2005.
+<p>
+
+<div  align=right>[<a href='code/ex_wind_rose_2.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/ex_wind_rose_2.html"></iframe>
+<p>
+
+<br>
+<div align=center>
+<img src='figs/ex_wind_rose_2.png' border=0>
+</div>
+<p>
+
+
+<div style='width: 500px; height: 50px; line-height: 50px' align=center>&sect;</div>
+
+<div class=subtitles>Colormaps</div>
+Matplotlib includes colormaps from several sources. Included in <i>okean.pl_tools</i> are some more,
+like the ncview colormaps. Some examples follow:
+<p>
+
+<div  align=right>[<a href='code/ex_colormaps.py'>download</a>]</div>
+<div  align=right>[<a href='code/data_ex_colormaps.nc'>download data</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/ex_colormaps.html"></iframe>
+<p>
+
+<br>
+<div align=center>
+<img src='figs/ex_colormaps.png' border=0>
+</div>
+<p>
+
+
+<div style='width: 500px; height: 50px; line-height: 50px' align=center>&sect;</div>
+
+<div class=subtitles>Along path arrows</div>
+Tool to plot along path arrows, usefull to visualize stream lines, for instance.
+<p>
+
+<div  align=right>[<a href='code/ex_parrow_1.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/ex_parrow_1.html"></iframe>
+<p>
+
+<br>
+<div align=center>
+<img src='figs/ex_parrow_1.png' border=0>
+</div>
+<p>
+
+<div style='width: 500px; height: 50px; line-height: 50px; font-size: 9px' align=center>&#8258;</div>
+
+Let's animate it...
+<p>
+
+<div  align=right>[<a href='code/ex_parrow_2.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/ex_parrow_2.html"></iframe>
+<p>
+
+<br>
+
+<div align=center>
+<img src='figs/ex_parrow_anim_1.gif' border=0>
+</div>
+
+<div align=center>
+<img src='figs/ex_parrow_anim_2.gif' border=0>
+</div>
+<p>
+
+
+<div style='width: 500px; height: 50px; line-height: 50px' align=center>&sect;</div>
+
+
+</div>

@@ -1,0 +1,71 @@
+<pre style='font-size:10px;color:#7b7b7b'>
+import pygridgen
+from okean import roms, gshhs
+import numpy as np
+import pylab as pl
+
+grd    = 'roms_grd.nc'
+r=roms.Grid(grd)
+
+def gen_vert(geo=True):
+  if not geo:
+    return pygridgen.rho_to_vert(r.use('x_rho'),r.use('y_rho'),r.pm,r.pn,r.angle)
+
+  ny,nx=r.h.shape
+  xv=np.zeros((ny+1,nx+1),'f')
+  yv=np.zeros((ny+1,nx+1),'f')
+  xv[1:-1,1:-1]=r.lonp
+  yv[1:-1,1:-1]=r.latp
+
+  xv[0,:]=xv[1,:]-(xv[2,:]-xv[1,:])
+  yv[0,:]=yv[1,:]-(yv[2,:]-yv[1,:])
+
+  xv[-1,:]=xv[-2,:]+(xv[-2,:]-xv[-3,:])
+  yv[-1,:]=yv[-2,:]+(yv[-2,:]-yv[-3,:])
+
+  xv[:,0]=xv[:,1]-(xv[:,2]-xv[:,1])
+  yv[:,0]=yv[:,1]-(yv[:,2]-yv[:,1])
+
+  xv[:,-1]=xv[:,-2]+(xv[:,-2]-xv[:,-3])
+  yv[:,-1]=yv[:,-2]+(yv[:,-2]-yv[:,-3])
+
+  return xv,yv
+
+
+def save_mask(rmask):
+  print 'saving ...'
+  u,v,p=pygridgen.uvp_masks(rmask)
+  import netCDF4
+  nc=netCDF4.Dataset(grd,'a')
+  nc.variables['mask_rho'][:]=rmask
+  nc.variables['mask_u'][:]=u
+  nc.variables['mask_v'][:]=v
+  nc.variables['mask_psi'][:]=p
+  nc.close()
+
+xv,yv=gen_vert()
+e=pygridgen.edit_mask_mesh(xv,yv,r.mask)
+ax=pl.gca()
+
+# show cells:
+ax.plot(xv,yv,'#f88d01',alpha=.1)
+ax.plot(xv.T,yv.T,'#f88d01',alpha=.1)
+
+# show coast:
+xl=r.lon.min()-1,r.lon.max()+1
+yl=r.lat.min()-1,r.lat.max()+1
+xc,yc=gshhs.get_coastline(xl,yl,'h')
+ax.plot(xc,yc,'g',lw=0.2)
+pl.axis('equal')
+
+# manually edit the mask ....
+# then save it back to file:
+
+# save mask to file when figure closes:
+fig=pl.gcf()
+def close(evt,mask=e.mask): save_mask(mask)
+fig.canvas.mpl_connect('close_event', close)
+
+# or do it by hand:
+#save_mask(e.mask)
+</pre>

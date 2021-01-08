@@ -1,0 +1,29 @@
+this file incluses the tags related with the names of files to download
+and their destinations
+
+#---------------------------------------------------------------------#
+[url]
+http://nomads.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.#DATE##HOUR_START#/master/
+
+[nameTagDest] # tag to local files
+gfs_#DATE#_#HOUR_START#_#HOUR_SIM#.grib#VERSION#
+
+[nameTagSrc]  # tag to files at server
+gfs.t#HOUR_START#z.mastergrb2f#HOUR_SIM#
+
+[gribVersion] # grib files version at server
+2
+
+[invExt]      # grib inventory extension at server
+idx
+
+[dt_start]    # time interval (h) between each model start
+6
+
+[dt_sim]      # time interval (h) between each model output
+3
+
+[nforec]      # n days of forecast data to download
+5
+#---------------------------------------------------------------------#
+

@@ -1,0 +1,43 @@
+import numpy as np
+import pylab as pl
+from matplotlib import animation
+from okean import pl_plots as pp
+
+r = np.arange(0,1,0.01)
+teta=4.5*np.pi*r
+y = r*np.sin(teta)
+x = r*np.cos(teta)
+
+
+def animate1(i):
+  D0=-2,-1,0
+  ax.cla()
+  pp.parrow(x,y,d0=D0[i],d=-1);
+
+  ax.set_aspect('equal')
+  ax.axis([-1.,1.,-.9,1.1])
+  ax.set_frame_on(0)
+  ax.set_xticks(())
+  ax.set_yticks(())
+
+fig=pl.figure()
+ax=pl.axes((0,0,1,1))
+anim = animation.FuncAnimation(fig, animate1, frames=3)
+anim.save('ex_parrow_anim_1.gif', writer='imagemagick', fps=5,dpi=30)
+
+
+def animate2(i):
+  g=np.exp(-(teta-teta[i*4])**2/.5)
+  ax.cla()
+  pp.parrow(x,y,d0=0,d=-1,n=2,head_angle=0,C=g,cmap=pl.cm.jet)
+
+  ax.set_aspect('equal')
+  ax.axis([-1.,1.,-.9,1.1])
+  ax.set_frame_on(0)
+  ax.set_xticks(())
+  ax.set_yticks(())
+
+fig=pl.figure()
+ax=pl.axes((0,0,1,1))
+anim = animation.FuncAnimation(fig, animate2, frames=teta.size/4)
+anim.save('ex_parrow_anim_2.gif', writer='imagemagick', fps=15,dpi=30)

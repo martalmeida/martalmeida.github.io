@@ -1,0 +1,34 @@
+<pre style='font-size:10px;color:#7b7b7b'>
+import os
+import pylab as pl
+from mpl_toolkits.basemap import Basemap
+from okean import pl_tools, netcdf
+
+fsave='data_ex_colormaps.nc'
+if os.path.isfile(fsave):
+  f=fsave
+else:
+  f='http://west.rssoffice.com:8080/thredds/dodsC/pacific/CA3km-nowcast/CA/ca_subCA_das_2014061303.nc'
+
+v=netcdf.use(f,'temp',depth=0,time=0)
+x=netcdf.use(f,'lon')
+y=netcdf.use(f,'lat')
+
+if not os.path.isfile(fsave):
+  netcdf.dict2nc('data_colormaps.nc',vars=dict(temp=v,lon=x,lat=y),
+                 dims=dict(x=v.shape[1],y=v.shape[0]))
+
+m=Basemap(resolution='i',urcrnrlon=x.max(),urcrnrlat=y.max(),
+          llcrnrlon=x.min(),llcrnrlat=y.min())
+
+fig=pl.figure()
+ax=[fig.add_subplot(2,2,i+1) for i in range(4)]
+[m.drawcoastlines(ax=i) for i in ax]
+
+ax[0].pcolormesh(x,y,v,cmap=pl_tools.cm_ncview.rainbow)
+ax[1].pcolormesh(x,y,v,cmap=pl_tools.cm.oceano_02_r)
+ax[2].pcolormesh(x,y,v,cmap=pl_tools.cm_basemap.GMT_ocean)
+ax[3].pcolormesh(x,y,v,cmap=pl_tools.cm.freshwater_r)
+
+[pl.colorbar(i.collections[-1],ax=i,orientation='vertical') for i in ax]
+</pre>

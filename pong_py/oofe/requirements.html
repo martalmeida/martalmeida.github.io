@@ -1,0 +1,45 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+ var here0='OOFe';
+ var here1='requirements';
+</script>
+<script src="../sett.js"></script>
+
+
+<div style='width:500px'>
+
+<div class=subtitles>Ocean model:</div>
+<br>
+A working configuration is needed, i.e., the model compiled, grid, initial conditions, text
+input file (roms.in).
+
+<p>
+
+Model may will run with several types of forcings. Tides, if used, are
+usually fixed for at least one year. Surface atmospheric data has usually have high
+frequency and is stored locally (this can be easily changed). Lateral data can be
+a fixed climatology) or can change regularly. OOF&epsilon; includes a module to
+get data from HYCOM data server and create boundary clm and bry files (other sources can
+be used).
+
+<p><br>
+<div class=subtitles>Python software:</div>
+<br>
+- Python (&ge;2.6) <br>
+- Matplotlib (with Basemap toolkit)<br>
+- Numpy<br>
+- NetCDF4-Python<br>
+- Pygrib (if surface forcing data in grib format will be used)<br>
+- Okean
+
+<p>
+There are a few Python distributions which include all these tools (except Pygrib and Okean).
+You may try <a href='http://continuum.io' target='_blank'>ANACONDA</a> (totally free,
+recommended) or <a href='http://www.enthought.com' target='_blank'>Enthought</a>. You can also easily
+install everything by hand or from repositories.
+<p>
+Okean is my collection of Python tools for ocean modelling. Is the base of OOF&epsilon;.
+You can get it from this site here: <a href='../okean/download.php'>OKEAN &gt; downloads</a>.
+
+</div>

@@ -1,0 +1,531 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+ var here0='OOFe';
+ var here1='tutorial';
+</script>
+<script src="../sett.js"></script>
+
+
+<div style='width:500px'>
+
+<a name='top'></a>
+<div class=titles2>OOF&epsilon; step-by-step</div>
+<br>
+
+This tutorial is about installing the operational system and running it with HYCOM lateral
+forcing and GFS atmospheric data. Changing the data sources is, however, not hard.
+
+<p>
+<div class=titles2>Index</div>
+<ol>
+<li><a href='#item1'>untar source</a></li>
+<li><a href='#item2'>edit setup.py</a></li>
+<li><a href='#item3'>run setup.py</a></li>
+<li><a href='#item4'>about lateral forcing</a></li>
+<li><a href='#item5'>test the creation of lateral forcing</a></li>
+<li><a href='#item6'>about surface forcing</a></li>
+<li><a href='#item7'>test the creation of surface forcing</a></li>
+<li><a href='#item8'>other forcings</a></li>
+<li><a href='#item9'>about model input parameters files</a></li>
+<li><a href='#item10'>test the creation of model input parameters files</a></li>
+<li><a href='#item11'>model execution options</a></li>
+<li><a href='#item12'>test the creation of job submission script</a></li>
+<li><a href='#item13'>run first day</a></li>
+<li><a href='#item14'>run operationally</a></li>
+<li><a href='#item15'>plots</a></li>
+</ol>
+<br><br>
+
+<a name='item1'></a>
+<!--[<a href='#top'>top</a>]-->
+<div class=subtitles>1. untar source</div>
+<div style='padding-left: 10px'>
+
+<div class=bash>
+[user@ ~]$ tar xvfz oof_src_YYYYMMDD_xx.tar.gz
+...
+[user@ ~]$ mv oof_src_YYYYMMDD_xx op
+[user@ ~]$ cd op
+[user@ ~/op]$ ls -log
+-rw-r--r-- 1  502 Oct 23 09:04 check_oof.py
+drwxrwxr-x 2 4096 Oct 23 09:02 log
+drwxrwxr-x 9 4096 Oct 23 08:42 oof
+-rw-r--r-- 1 4151 Oct 23 08:23 oof_src.py
+-rwxr-xr-x 1  376 Oct 22 11:50 run_a.py
+-rwxr-xr-x 1  377 Oct 22 11:50 run_f.py
+-rw-r--r-- 1 4288 Oct 22 16:58 setup.py
+</div>
+<br>
+check_oof.py is used with crontab to check/start operational system. Folder log
+includes logs of the tasks done. A new log starts every time operational system stops (ie, when there is some problem). Folder oof includes all model input/output and the python engine.
+run_a.py and run_f.py start the analysis and forecast engines. They are called by check_oof.py.
+The configuration file setup.py includes several options and paths to files. See next step.
+</div>
+<p>
+
+
+<a name='item2'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>2. edit setup.py</div>
+<div style='padding-left: 10px'>
+In the first lines you can find:
+<div class=bash>
+# user's conf --------------------------------------------------------
+grdFile  = 'PATH TO FILE *** EDIT ***'
+iniFile  = 'PATH TO FILE *** EDIT ***'
+iniDate  = 'YYYYMMDD     *** EDIT ***'
+clmFile  = False
+fltFile  = False
+staFile  = False
+frcFile  = 'PATH TO FILE *** EDIT ***'
+
+runFileA = 'PATH TO FILE *** EDIT ***'
+runFileF = 'PATH TO FILE *** EDIT ***'
+
+atmPath  = 'PATH TO FILE *** EDIT ***'
+
+# end of user's conf ---------------------------------------------------
+</div>
+<br>
+Edit here the fixed file names. grdFile - grid; iniFile - initial conditions; clmFile -
+climatology; fltFile - floats input file; staFile - stations input file; frcFile - any
+fixed forcing file, like climatological rivers, tides...; runFileA and runFileF - ocean model
+for analysis and forecast. atmPath is the place where local atmospheric data is stored
+(not required for now, needed if you will use GFS data; you will find more information
+about this in point 4). Set False the files/paths you dont want to link at this step.
+iniDate is the date corresponding to iniFile (ex. iniDate = '20130101'). grdFile, iniFile, iniDate, runFileA and runFileF are required!
+</div>
+<p>
+
+
+<a name='item3'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>3. run setup.py</div>
+<div style='padding-left: 10px'>
+<div class=bash>
+[user@ ~/op]$ python setup.py
+</div>
+<br>
+The required folders will be created and files/paths linked.
+</div>
+<p>
+
+
+<a name='item4'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>4. about lateral forcing</div>
+<div style='padding-left: 10px'>
+The operation system includes a module to deal with the creation of clm and bry
+files from the HYCOM opendap server. This module, get_hycom.py is located in
+op/oof/aux/apptools. The variables sparams and obc must be edited in the file. sparams
+are the vertical coordinate parameters: theta_s, theta_b, hc, nLevels, Vtransform, Vstretching.
+obc are the open boundaries, ex: 'nsw'. It is used in the creation of the bry files.
+
+<br>
+When using the global HYCOM dataset, finding the region to extract may take some time.
+So, the first time the modules is used, a file with indices is created (ijinds.pickle) in the same folder.
+</div>
+<p>
+
+
+<a name='item5'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>5. test the creation of lateral forcing</div>
+<div style='padding-left: 10px'>
+Better test everything before the operational system starts producing errors of all kind...
+So, let's open ipython and try to create clm+bry files for some day.
+<div class=bash>
+[user@ ~/op]$ cd oof
+[user@ ~op/oof]$ ipython
+In [1]: from engine import oof
+In [2]: oof.gen_clmbry(date='20130101',FA='a',cf='oof.conf',quiet=False)
+</div>
+<br>
+If all goes well, the name of the files created will be returned with an empty error message.
+Otherwise, better not continue until the problem is not solved.
+
+<br>
+gem_clmbry has as main inputs the date (can be a YYYYMMDD string of a datetime); FA='a'|'f',
+analysis or forecast; the engine configuration file (we will check it in a next step) and
+a quiet flag. The analysis files have one day of data, from 00h of YYYYMMDD to 00h of next day.
+The forecast files may have more days. You can change the number of forecast days in the
+configuration file oof.conf (search for npred, npred = 5 by default).
+
+make some plots of the clm file created to check all is ok (make life easy and use the
+Okean ROMS gui: rgui GRD CLM)
+</div>
+<p>
+
+
+<a name='item6'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>6. about surface forcing</div>
+<div style='padding-left: 10px'>
+The operation system includes tools to deal with many atmospheric datasets: INTERIM, NARR,
+WRF local model outputs, CFSR and GFS. From these, only GFS has global forecasts with good
+resolution and periodicity (0.5&deg; every 3 h). By default, OOF&epsilon; uses GFS, which should
+be stored locally (in grib format).
+<p>
+
+It is now possible to get GFS data automatically from nomads opendap server but seems to be
+slower and not with the same availability as data in the http server. Besides maybe is a
+good idea to keep original data. Global GFS variables required for the model are about 2Mb
+each time, ie, less than 100M needed per day, including 5 days forecast.
+<p>
+
+To download GFS you can create a script (and call it regularly from crontab) with this
+information:
+<div class=bash>
+from sys import argv
+from okean.datasets import gfs
+
+BaseFolder='/home/user/op_data/gfs_3h_0.5'
+quiet=True
+date=False # will get last seven days including today's forecast
+
+try: date=argv[1]
+except: pass
+
+try: quiet=argv[2]=='1'
+except: pass
+
+q=gfs.GFSDownload(basefolder=BaseFolder)
+q.download_current(quiet=quiet,date=date)
+</div>
+<p>~
+To deal with grib files, python needs pygrib. To install it you also need grib api.
+If it is not installed in standard locations, you may need to set LD_LIBRARY_PATH
+in crontab to the lib folder of the grib api installation.
+<p>
+
+BaseFolder must include the configuration file tags.info. This file sets the data server,
+filenames, number of forecast days, etc. These files for GFS 1&deg; and GFS 0.5&deg; can
+be obtained here: <a href='tags.info_1'>1&deg;</a>, <a href='tags.info_0.5'>0.5&deg;</a>.
+<p>
+
+It also must contain a folder scripts and a folder log (a log file will be stored here).
+In folder scripts you should put the two scripts available in the site~
+http://nomads.ncep.noaa.gov/txt_descriptions/fast_downloading_grib.shtml, where the
+"fast downloading of GRIB2 Files from the NCEP NOMAD Server" is described (cURL must be
+installed).
+
+You will end up with the following structure (inside BaseFolder ~/op_data/gfs_3h_0.5):
+<div class=bash>
+   download_gfs.py
+   tags.info
+   |--gribs
+   |----20120801
+   |----20120802
+        ...
+   |----20131026
+        gfs_20131026_00_03.grib2
+        gfs_20131026_00_06.grib2
+        gfs_20131026_00_09.grib2
+        gfs_20131026_00_102.grib2
+        gfs_20131026_00_105.grib2
+        ...
+   |----20131027
+   |----20131028
+   |--log
+      download.log
+   |--scripts
+      get_grib.pl
+      get_inv.pl
+</div>
+<p>
+In point 1, atmPath is actually the BaseFoder. So if you want to use GFS data and didn't set
+atmPath in file setup.py, you can go to folder external of oof and link GFS data there:
+<div class=bash>
+[user@ ~/op/oof]$ cd ~/op/oof/external
+[user@ ~/op/oof/external] ln -s ~/op_data/gfs_3h_0.5 atm
+</div>
+</div>
+<p>
+
+
+<a name='item7'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>7. test the creation of surface forcing</div>
+<div style='padding-left: 10px'>
+It is assumed that you have atmospheric data stored locally from GFS, in grib format,
+and the GFS folder is linked as ~op/oof/external/atm.
+
+<div class=bash>
+[user@ ~/op/oof/external]$ cd ~/op/oof~
+[user@ ~op/oof]$ ipython
+In [1]: from engine import oof
+In [2]: oof.gen_atmfrc(date='20130101',FA='a',cf='oof.conf',quiet=False)
+</div>
+<p>
+
+if all goest well, a bulk forcing file is created in folder ~/op/oof/inputs/blk, and the
+filename with path is returned.
+</div>
+<p>
+
+
+<a name='item8'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>8. other forcings</div>
+<div style='padding-left: 10px'>
+You can set path for fixed forcing files in model input text file. Variable forcing data must
+be managed by the system, like lateral and surface forcing. Other possible variable data is the
+river discharge. If you want to use rivers go to oofe configuration file, ~/op/oof/oof.conf
+and set riverfrc=True. Then you must edit the river forcing generation sample script,
+~/op/oof/aux/apptools/get_river.py. Anything other operational task can be added to oofe main
+file, ~/op/oof/engine/oof.py...
+</div>
+<p>
+
+
+<a name='item9'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>9. about model input parameters files</div>
+<div style='padding-left: 10px'>
+Every time model runs, it uses a new standard input parameters file, updated with new input/output
+file names. Files are created from one initial with tags that will be replaced. So, you must have
+one initial file for analysis and other for forecast (by default they only differ in NTIMES)
+in folder ~/op/oof/inputs/roms_in/. There you will find already the two files, ocean_a_n0.in
+and ocean_f_n0.in.
+<p>
+They may not correspond to your version, so you may need to use your own
+file ocean.in to replace these two files. If so, mv ocean.in ocean_a.in, then edit ocean_a.in
+by changing the value of several variables by #&lt;VAR&gt;#, example: TITLE = #TITLE#.
+All the replacements to do are:
+
+<pre>
+TITLE = #TITLE# (then set title in oof.conf)
+MyAppCPP = #APPCPP# (then set appcpp in oof.conf)
+NtileI == #NTILEI# (then set ntile_i in oof.conf)
+NtileJ == #NTILEJ# (then set ntile_j in oof.conf)
+DSTART =  #DSTART#.0d0~
+GRDNAME == #GRD#
+ININAME == #INI#
+BRYNAME == #BRY#
+CLMNAME == #CLM#
+FRCNAME == #FRC# \  (or just FRCNAME == #BLK#, if only bulk forcing will be used)
+           #BLK#
+RSTNAME == #RST#
+HISNAME == #HIS#
+AVGNAME == #AVG#
+STANAME == #STA#
+FLTNAME == #FLT#
+SPOSNAM =  #STA_IN#
+FPOSNAM =  #FLT_IN#
+</pre>
+
+The file names will be generated according to rules in oof.conf. You may edit to make changes.
+For instance, by default the stations input file, SPOSNAN is statins.in, but it it should
+be different every, just change it to name_in_sta  = stations_#DATE#.in, for instance.
+<p>
+After creating ocean_a_n0.in, just copy it to ocean_f_n0.in, and change NTIMES to the forecast
+days you are interested.
+</div>
+<p>
+
+
+<a name='item10'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>10. test the creation of model input parameters files</div>
+<div style='padding-left: 10px'>
+<div class=bash>
+[user@ ~/op]$ cd oof
+[user@ ~op/oof]$ ipython
+In [1]: from engine import oof
+In [2]: oof.gen_in(date='20130101',FA='a',cf='oof.conf')
+</div>
+<br>
+Then go check the new file created in folder ~/op/oof/inputs/roms_in.
+</div>
+<p>
+
+
+<a name='item11'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>11. model execution options</div>
+<div style='padding-left: 10px'>
+Model can be executed with and without a queuing system. To run without, set name_run in oof.conf
+to the model execution command. The executables are linked as roms_a and roms_f (analysis and
+forecast) in folder ~/op/oof/run.
+<p>
+So, if you will run the model locally (ex.: roms_a &lt; roms.in &gt; roms.out) just set
+name_run = roms_#FA#. Do the same if you will use a queing system.
+<p>
+I you will use MPI without queuing system, you can do, for instance:
+name_run = /opt/intel/bin/mpirun -np 80 --machinefile machines ./roms_#FA#
+(in this case, place the file machines in run folder)
+<p>
+In oof.conf you must change the flags qsub (for queuing system) and mpi (if qsub is True, mpi
+value is not used).
+<p>
+If you will use a queuing system, a submission script will be created automatically.
+The default one is  ~/op/oof/aux/qsub/model.sub. Edit this file changing things like job name,
+mpirun flags, and PBS directives. Options between % % will be change automatically using
+oof.conf settings:
+<pre>
+queue_a=longq
+ppn_a=48
+walltime_a=10:00:00
+nodes_a = 2
+</pre>
+<br>
+There are also similar keys for forecast, they just end with _f instead of _a.
+Note that ppn_a * nodes_a = ntilei_a * ntilej_a.
+You must also set the full path of qsub (just do which qsub) and qdel in oof.conf.
+<p>
+Note that some files may need to be placed in run folder, like machines and varinfo.dat.
+</div>
+<p>
+
+
+<a name='item12'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>12. test the creation of job submission script</div>
+<div style='padding-left: 10px'>
+You may do this step if qsub is True in oof.conf.
+<div class=bash>
+[user@ ~/op]$ cd oof
+[user@ ~op/oof]$ ipython
+In [1]: from engine import oof
+In [2]: oof.gen_sub(date='20130101',FA='a',cf='oof.conf')
+</div>
+<br>
+Then go check the new file created in folder ~/op/oof/aux/qsub.
+</div>
+<p>
+
+
+<a name='item13'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>13. run first day</div>
+<div style='padding-left: 10px'>
+As a test, you should try to run the model one day. Then if all is working you can start
+the automatic mode, ie, the operational system.
+<div class=bash>
+[user@ ~op/oof]$ ipython
+In [1]: from engine import oof
+In [2]: oof.run(date='20130101',FA='a',cf='oof.conf')
+</div>
+<br>
+A sequence of steps starts with some prints in the screen:
+<div class=bash>
+GEN ini 2013-01-01 00:00:00 a     :: created file roms_ini_20131025_a_n0.nc
+GEN blk 2013-01-01 00:00:00 a     :: created file roms_blk_20131025_a_n0.nc
+GEN clm bry 2013-01-01 00:00:00 a :: created file roms_clm_20131025_a_n0.nc roms_bry_20131025_a_n0.nc
+GEN .in 2013-10-25 00:00:00 a     :: created file ocean_20131025_a_n0.in
+&lt;title&gt; 2013-01-01 00:00:00 a started              [&lt;date&gt;]
+# or if using queing system:
+&lt;title&gt; 2013-01-01 00:00:00 a submitted            [&lt;date&gt;]
+
+Run 2013-01-01 00:00:00 a finished ok [&lt;date&gt;] dt=  20.61
+</div>
+<p>
+After this, go check model output in folder ~/op/oof/outputs/ncfiles.
+</div>
+<p>
+
+
+<a name='item14'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>14. run operationally</div>
+<div style='padding-left: 10px'>
+If the first day test went well, it is time make it run continuously:
+<div class=bash>
+[user@ ~op/oof]$ ipython
+In [1]: from engine import oof
+In [2]: oof.oof('oof.conf','plots.conf',FA='a') # FA='f' for forecast
+</div>
+<br>
+The system will search for last date in model outputs and will check model standard output
+to see if model ended normally (no blow up). After this, it will check if atm data for
+next date is available, a well as lateral boundary data. If is not available it will wait
+some mintes and check again and again, for more than one day. Then, after all data is ready,
+the system do the run of the next day. After this some default plots may be done, if
+plots=True in oof.conf.
+<br>
+I suggest you to set plots=False at this stage. Plots are created by module engine/op_plot.py
+and several plots can be done: slices at several depths; slices with currents; different sizes
+for figures; forcing wind; wind-roses; etc. All about plots is configurable in file plots.conf.
+<p>
+It may take a while before you have good settings for plots, so better let system run without
+plots in the mean time. When you decide plots.conf is good enough, set plots=True in oof.conf
+and restart oof. If you are inside ipython just do Ctrl+C and call oof.oof(... again.
+<p>
+Actually the right way to run oof.oof is not from a python session. It should be done with
+a script called from crontab. The engine may stop for some reason, so crontab will ensure it
+will start automatically. Such script, check_oof.py is available in folder ~/op and it checks
+if run_a.py and run_f.py are running. These two call oof.oof(...
+
+<p>
+Another way to check if system is running is with ps:
+<div class='bash'>
+[user@ ~]$ ps -e | grep run
+</div>
+<p>
+This command should list run_a.py and run_f.py. If not go check latest prints, which are stored in
+logs folder (~/op/log). Each time system restarts, a new log file is created. It stores all the
+messages from the regular execution of the system, as well as error messages.
+<p>
+
+About adding check oof to crontab, you may also need to set LD_LIBRARY_PATH to the current value.
+Do echo $LD_LYBRARY_PATH; copy the result; edit crontab (crontab -e) and in the first lines add
+LD_LIBRARY_PATH=&lt;paste&gt;. Then, you may call check_oof.py every 30 mins for instance:
+0,30 * * * * python /home/user/op/check_oof.py<br>
+If you just want analysis (only run_a.py is to be used) add a after check_oof.py.
+</div>
+<p>
+
+
+<a name='item15'></a>
+[<a href='#top'>top</a>]
+<div class=subtitles>15. plots</div>
+<div style='padding-left: 10px'>
+If plots=True in oof.conf, after model runs, several plots may be created automatically, and stored
+in folder ~/op/oof/outputs/plots. The types of plots, sizes, colormaps, depths, etc, can be
+configured in ~/op/oof/plots.conf. The first thing to do is to find a good size for the horizontal
+slices (a map projection is used).
+
+<div class=bash>
+[user@ ~]$ cd ~/op/oof
+[user@ ~/op/oof]$ ipython
+In [1]: from engine import op_plot
+In [2]: op_plot.plt0('oof.conf','plots.conf')
+In [3]: import pylab as pl
+In [4]: pl.show()
+</div>
+<p>
+By default the files plt0.png and plt0_thumb.png will be saved in folder ~/op/oof/outputs/plots.
+Change the figure size and axes position with option size under [FIGURE] and option position
+under [AXES]. The option tag (under [FIGURE] sets the number of figures to create. For instance
+to create plt0.png and plt0_thumb.png, tag must be set as tag=;thumb. If it was tag=label1;label2;label3
+would be created the files plt0_label1.png, plt0_label2.png, plt0_label3.png. This is useful
+to create thumbs for a web visualisation site. Every option can differ among the different tags, the
+most obvious is size, but you may don't want to show parallels and meridians in thumbs, for instance.
+Just separate the options with ";". If no ";" is found, the first option will be used.
+<p>
+
+Now try to plot some slices of daily averaged variables:
+<div class=bash>
+In [5]: # surface salinity:
+In [6]: op_plot.plt_hslice('oof.conf','plots.conf','20130101',var='salt',ind=-1, slice='k')
+In [7]: pl.show()
+In [8]: # temperature at 1000 m with currents every 7 grid point, with scale 1e-5:
+In [9]: op_plot.plt_hslice('oof.conf','plots.conf','20130101',var='temp',ind=-1000,
+   ...:                    slice='z',currents=True,dcurr=(7,7),scurr=1e-5)
+In [10]: pl.show()
+In [11]: # wind:
+In [12]: op_plot.plt_wind('oof.conf','plots.conf','20130101')
+In [13]: pl.show()
+</div>
+
+<p>
+There are many options in plots.conf, but in the end the plotting module is simple, easy to edit
+and it should be viewed as a starting point. It is quite useful to create all files needed to
+display forecasts in the web.
+
+<p>
+[<a href='#top'>top</a>]
+
+
+</div>

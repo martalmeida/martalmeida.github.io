@@ -1,0 +1,33 @@
+  ttd {background-color: white}
+  body,td,input,select {font-family:Verdana, Helvetica, Arial, sans-serif; font-size:12px}
+  a:hover{text-decoration:underline}
+  a{text-decoration: none; color:#4E5587}
+
+
+.subtitles {color:#A60202}
+.subtitles2 {color:#A60202; font-size:14px}
+.subtitlesBold {color:#A60202; font-weight:bold}
+.titles0  {color:#500000; font-weight:bold;   font-size:14px}
+.titles  {color:#064377; font-weight:bold;   font-size:14px}
+.titles2 {color:#064377; font-weight:normal; font-size:14px}
+
+.bash {font-family: "Courier New", monospace;
+       font-size: 10px;
+       white-space: pre;
+/*       background-color: #eeedf9; */
+       background-color: #f7f7f9; border: 1px solid #e2e0f9;padding: 5px;
+       width: 400px;
+}   
+  
+.bash2 {font-family: "Courier New", monospace;
+       font-size: 10px;
+       white-space: pre;
+       background-color: #feffef; border: 1px solid #eff0c3; padding: 5px;
+       width: 500px;
+} 
+  
+.highlight{background-color: #f7f7f9; border: 1px solid #e2e0f9;padding: 5px;
+       width: 500px;
+}
+
+

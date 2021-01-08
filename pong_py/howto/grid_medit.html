@@ -1,0 +1,34 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+ var here0='How to';
+ var here1='model grid';
+ var here2='edit mask';
+</script>
+<script src="../sett.js"></script>
+
+<div style='width:500px'>
+
+<div class=subtitles2>&there4; edit mask from netcdf grid</div><br>
+
+<div>If you know don't need to see the coast, you can use the following script:</div>
+<div align=right>[<a href='code/edit_mask_1.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/edit_mask_1.html"></iframe>
+<p>
+
+Just edit grid name and import it from ipython. You may need pl.show() to view the figure
+or, just do import pylab as pl; pl.ion() in the first place.<br>
+New mask will be saved when figure is closed.
+
+<div style='width: 500px; height: 50px; line-height: 50px' align=center>&#8258;</div>
+
+<div>If coast is needed, you may use a slightly more complex version:</div>
+<div  align=right>[<a href='code/edit_mask_2.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px" src="code/edit_mask_2.html"></iframe>
+<p>
+
+In this example you can use your own two columns, lon x lat, txt coastline file, or
+set the path for gshhs datasets.
+
+
+</div>
