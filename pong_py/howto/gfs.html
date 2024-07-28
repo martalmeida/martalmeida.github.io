@@ -1,0 +1,159 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+ var here0='How to';
+ var here1='surface forcing';
+ var here2='GFS';
+</script>
+<script src="../sett.js"></script>
+
+<div style='width:500px'>
+
+<style>
+ol,ul {padding-left: 20px}
+</style>
+
+<div class=subtitles2>&there4; create a ROMS analysis/forecast bulk forcing file with GFS</div><br>
+
+This page describes the steps to create surface bulk forcing files
+with GFS data.
+<p>
+
+<div class=subtitles>1. download GFS data</div>
+<div style='padding-left: 10px'>
+There are several different GFS datasets. GFS is usefull to provide forecasts and recent analysis. So it
+will be described how to download analysis and forecast data.
+<p>
+One way is 
+The roms module includes the classes Grid and His that can be used for slices (iso,
+depth, any path ...), s to z levels conversion, time series, etc.<br>
+A few examples follow:
+<p>
+
+<div class=subtitles>1.1</div>
+A fast way to plot model domain
+<div class='bash'>from okean import roms
+grd='ocean_grd.nc'
+roms.Grid(grd).plot(title='',xlim=[-95,-87.5])
+</div>
+<img src=ex/ex_roms_01.png>
+<p>
+
+<div class=subtitles>1.2</div>
+slicek: horizontal slice at s-level
+<div class='bash'>from okean import roms, pl_tools
+import pylab as pl
+</div>
+<div class='bash2'>from okean import roms, pl_tools
+import pylab as pl
+</div>
+
+<p>
+<a href='http://www.ecmwf.int/en/research/climate-reanalysis/era-interim' target='_blank'>
+ERA-Interim</a> from the ECMWF (European Centre for Medium-Range Weather
+Forecasts) is a global atmospheric reanalysis from 1979 to present.
+It include surface data at T255 spectral resolution, every 3 hours.
+All variables to run ROMS with the BULK_FLUXES directive are available.
+
+<p>
+The variables needed by ROMS depends of the header file options. The tools
+described here can create forcing files with a typical set of variables:
+<ul style='list-style-type: none; '>
+<li><b>&sdot;</b> Tair, surface air temperature</li>
+<li><b>&sdot;</b> Qair, relative humidity</li>
+<li><b>&sdot;</b> rain, precipitation rate</li>
+<li><b>&sdot;</b> lwrad, net longwave radiation flux</li>
+<li><b>&sdot;</b> swrad, net shortwave radiation flux</li>
+<li><b>&sdot;</b> Uwind, u-wind</li>
+<li><b>&sdot;</b> Vwind, v-wind</li>
+<li><b>&sdot;</b> cloud, cloud fraction</li>
+</ul>
+
+A couple of other variables are also created, like momentum stress, for
+compatibility with Agrif. The net longwave is not needed if the option
+LONGWAVE is used. Other variables may also be needed, like evaporations,
+for instance. They can be easily added a posteriori (in the case of the
+evaporation you may be interested in the option EMINUSP and the variable
+will be calculated by the model if SSFLUX is not analytical)
+
+<p>
+In ROMS forum there is a topic about the usage or ERA-Interim data to force
+the model, using matlab tools:
+<a href='https://www.myroms.org/forum/viewtopic.php?t=2705' target='_blank'>
+forum topic <i>forcing the ROMS with ERA interim</i></a>. The discussion
+evidences the difficulty of getting the right times and making the proper
+conversions to get the right model variables. Some variables are empty at
+atm model start, others are accumulated (since when?), etc.
+
+<div style='width: 500px; height: 50px; line-height: 50px; font-size: 9px' align=center>&#8258;</div>
+
+<div class=subtitles>Steps to create the forcing file with one year of 3h data</div>
+
+<ol>
+<li>go to <a href='http://data-portal.ecmwf.int/data/d/interim_daily/' target='_blank'>
+ERA-Interim data portal</a> and select daily surface fields (selected by default)</li>
+<li>select year</li>
+<li>download forecast variables:
+
+  <ol type='i'>
+    <li>select time 00h, 12h</li>
+    <li>select step 3,6,9,12</li>
+    <li>select variables Surface net solar radiation (ssr),
+        Surface thermal radiation (str) and Total precipitation (tp).
+        These three variables are accumulated.
+        <small>(Other variables you may be interested: Surface thermal
+        radiation downwards (strd), Evaporation (e))</small>
+    </li>
+    <li>Retrieve NetCDF; select domain range and data resolution (0.75&deg;)</li>
+  </ol>
+
+</li>
+
+<li>download analysis+forecast variables (analysis starts every 6h;
+    forecasts starts every 12h):~
+  <ol type='i'>
+    <li>select time 00h, 06h, 12h, 18h</li>
+    <li>select step 0, 3, 9 (3 and 9 provide the forecast 00h and 12h)</li>
+    <li>select variables Surface pressure (sp), Total cloud cover (tcc),
+        10 metre U wind component (v10u or u10), 10 metre V wind component (v10v or v10),
+        2 metre temperature (v2t or t2m), 2 metre dewpoint temperature (v2d or d2m)
+    </li>
+    <li>Retrieve NetCDF; select domain range and data resolution (0.75&deg;)</li>
+  </ol>
+</li>
+
+</ol>
+
+The data server has some limitations related with number of fields to be
+extracted. So, you may need to extract only two variables each time, for
+instance. In the end you will have something like: interim_2014_analysis_a.nc,
+interim_2014_analysis_b.nc, interim_2014_ana_forec_a.nc,... saved in the folder
+./interim_data/2014.
+
+<p><br>
+Now, time for a small python script to create the forcing file.
+<p>
+
+
+<div  align=right>[<a href='code/gen_blk_interim.py'>download</a>]</div>
+<iframe id='myFrame' style="border: 1px solid #cccccc; width: 500px;" src="code/gen_blk_interim.html"></iframe>
+<p>
+
+Call this from the command line:<p>
+
+<div class=bash2>shell&gt;&gt; python gel_blk_interim.py 2014</div>
+
+
+<div style='width: 500px; height: 50px; line-height: 50px' align=center>&sect;</div>
+
+<div>
+  <div style='font-size: 10px'>LINKS</div>
+  &#183; <a href='http://data-portal.ecmwf.int/data/d/interim_daily/' target='_blank'>
+  ERA-Interim data portal</a>
+
+  <br>
+  &#183; <a href='https://www.myroms.org/forum/viewtopic.php?t=2705' target='_blank'>
+  ROMS forum topic</a>
+</div>
+
+</div>

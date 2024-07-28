@@ -34,14 +34,14 @@ if (here0=='home'){
 
   k0['about']=[];
   k0['model grid']=['grid generation','edit mask','make a plot','extract coastline','extract bna'];
-  k0['surface forcing']=['bulk interim'];
+  k0['surface forcing']=['ERA Interim','GFS'];
   k0['model inputs']=['clm to ini','clm to bry','ini/clm/bry','surface','rivers'];
   k0['misc']=['specialized plots','etc'];
   k0['etc']=['etc'];
 
   k1['about']=[];
   k1['model grid']=['grid_gen.html','grid_medit.html','grid_plot.html','coastline.html','bna.html'];
-  k1['surface forcing']=['interim.html'];
+  k1['surface forcing']=['interim.html','gfs.html'];
   k1['model inputs']=['clm2ini.html','clm2bry.html','inp_prog_TODO.html','inp_atm_TODO.html','inp_rivers_TODO.html'];
   k1['misc']=['spec_plots_misc.html','misc_etc_TODO.html'];
   k1['etc']=['etc_TODO.html'];
